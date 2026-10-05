@@ -25,10 +25,16 @@ Sin completar `config.js`, la app funciona en modo local: los datos quedan solo 
 python3 -m http.server 8080   # y abre http://localhost:8080
 ```
 
-## Publicarla (GitHub Pages)
+## Publicarla (Netlify)
 
-Repositorio > **Settings > Pages** > *Deploy from a branch* > rama `main`, carpeta `/ (root)`.
-Luego agrega esa URL en Supabase como *Site URL* (paso 4).
+1. En [netlify.com](https://app.netlify.com): **Add new site > Import an existing project > GitHub** y elige este repositorio.
+2. Deja *Build command* vacío y *Publish directory* en `.` (ya lo define `netlify.toml`). Pulsa **Deploy**.
+3. Copia la dirección que te da Netlify (`https://tu-sitio.netlify.app`) y en Supabase, **Authentication > URL Configuration**,
+   ponla como *Site URL* y agrégala en *Redirect URLs*.
+
+Cada `git push` a `main` publica una versión nueva automáticamente.
+
+También sirve GitHub Pages: **Settings > Pages > Deploy from a branch > `main` / root**.
 
 ## Estructura
 
