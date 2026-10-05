@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2747d6">
+<title>Crono-Dia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap" id="authView" hidden>
+  <header><h1>Crono-Dia</h1></header>
+  <section class="card" aria-label="Acceso">
+    <h2>Entra a tu cuenta</h2>
+    <form id="authForm">
+      <label>Correo <input id="aEmail" type="email" autocomplete="email" required></label>
+      <label>Contraseña (mínimo 6 caracteres) <input id="aPass" type="password" autocomplete="current-password" minlength="6" required></label>
+      <div class="banner" id="aMsg" hidden></div>
+      <div class="row">
+        <button class="primary" id="aLogin" type="submit">Entrar</button>
+        <button class="ghost" id="aSignup" type="button" style="padding:13px;font-size:1rem">Crear cuenta</button>
+      </div>
+    </form>
+    <p class="note" style="margin:12px 0 0">Tus actividades se guardan en tu cuenta y solo tú puedes verlas.</p>
+  </section>
+</div>
+<div class="wrap" id="appView">
+  <header>
+    <h1>Crono-Dia</h1>
+    <div class="seg sm" id="viewSeg" role="group" aria-label="Vista">
+      <button data-v="dia" aria-pressed="true">Día</button>
+      <button data-v="semana" aria-pressed="false">Semana</button>
+    </div>
+  </header>
+
+  <div class="banners" id="banners"></div>
+
+  <div class="seg scope" id="scopeSeg" role="group" aria-label="Ámbito">
+    <button data-v="todo" aria-pressed="true">Todo</button>
+    <button data-v="trabajo" aria-pressed="false">Trabajo</button>
+    <button data-v="personal" aria-pressed="false">Vida personal</button>
+  </div>
+
+  <!-- ============ VISTA DÍA ============ -->
+  <div class="stack" id="dayView">
+    <section class="hero" aria-label="Resumen del día">
+      <div class="nav">
+        <button class="icon-btn" id="prevD" aria-label="Día anterior">‹</button>
+        <div class="lbl"><b id="dLbl"></b><small id="dSub"></small></div>
+        <button class="icon-btn" id="nextD" aria-label="Día siguiente">›</button>
+      </div>
+      <div class="strip" id="strip"></div>
+      <div>
+        <div class="prog-top">
+          <div><div class="prog-lbl">Cumplido</div><div class="prog-big" id="progBig">0<small>/0</small></div></div>
+          <button class="ghost" id="todayBtn" type="button">Ir a hoy</button>
+        </div>
+        <div class="track" style="margin-top:8px"><div class="fill" id="progFill" style="width:0%"></div></div>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><small>Pendientes</small><b id="kPend">0</b></div>
+        <div class="kpi"><small>Semana</small><b id="kWeek">—</b></div>
+        <div class="kpi"><small>Racha</small><b id="kStreak">0 días</b></div>
+      </div>
+    </section>
+
+    <section class="card" aria-label="Agenda del día">
+      <h2>Agenda</h2>
+      <div class="list" id="list"></div>
+    </section>
+
+    <section class="card" aria-label="Agregar actividad" id="addCard">
+      <h2>Agregar actividad</h2>
+      <form id="taskForm">
+        <div class="seg scope" id="fScopeSeg" role="group" aria-label="Tipo de actividad">
+          <button type="button" data-v="trabajo" aria-pressed="true">Trabajo</button>
+          <button type="button" data-v="personal" aria-pressed="false">Vida personal</button>
+        </div>
+        <label>¿Qué vas a hacer?
+          <input id="fTitle" class="big" type="text" maxlength="100" placeholder="Ej. Revisar anuncios de Meta" required autocomplete="off">
+        </label>
+        <div class="row">
+          <label>Inicio <input id="fStart" type="time"></label>
+          <label>Fin <input id="fEnd" type="time"></label>
+        </div>
+        <label>Fecha <input id="fDate" type="date" required></label>
+        <button class="primary" id="saveBtn" type="submit">Guardar actividad</button>
+      </form>
+    </section>
+
+    <section class="card" aria-label="Cierre del día" id="closeCard">
+      <h2>Cierre del día</h2>
+      <label>¿Qué cumpliste, qué no, y por qué? Una o dos frases, sin excusas.
+        <textarea id="dayNote" maxlength="400" placeholder="Ej. No hice el gym porque me quedé revisando pedidos. Mañana lo pongo a las 7:00 antes de abrir el celular."></textarea>
+      </label>
+      <div class="note" id="noteHint" style="margin-top:6px"></div>
+    </section>
+  </div>
+
+  <!-- ============ VISTA SEMANA ============ -->
+  <div class="stack" id="weekView" hidden>
+    <section class="hero" aria-label="Resumen de la semana">
+      <div class="nav">
+        <button class="icon-btn" id="prevW" aria-label="Semana anterior">‹</button>
+        <div class="lbl"><b id="wLbl"></b><small id="wSub"></small></div>
+        <button class="icon-btn" id="nextW" aria-label="Semana siguiente">›</button>
+      </div>
+      <div class="sum" id="wSum"></div>
+    </section>
+    <div class="stack" id="wDays"></div>
+  </div>
+
+  <!-- ============ AJUSTES ============ -->
+  <section class="card" aria-label="Ajustes">
+    <h2>Aviso para planificar</h2>
+    <div class="row">
+      <label>¿Cuándo planificas?
+        <select id="cfgMode">
+          <option value="pm">La noche anterior (para mañana)</option>
+          <option value="am">Esa misma mañana</option>
+        </select>
+      </label>
+      <label>Hora del aviso <input id="cfgTime" type="time"></label>
+    </div>
+    <p class="note" style="margin:10px 0 0">Mientras tengas esta página abierta, te avisa arriba cuando llega la hora y no has planificado. Para que el celular suene aunque la página esté cerrada, pon también una alarma a esa hora.</p>
+  </section>
+
+  <section class="card" aria-label="Horario fijo">
+    <h2>Horario fijo</h2>
+    <p class="note" style="margin:0 0 12px">Actividades que se repiten cada semana. Aparecen solas en tu agenda los días que elijas.</p>
+    <form id="rtForm">
+      <label>Actividad <input id="rTitle" type="text" maxlength="100" placeholder="Ej. Gym" autocomplete="off" required></label>
+      <div class="row">
+        <label>Tipo
+          <select id="rScope"><option value="trabajo">Trabajo</option><option value="personal">Vida personal</option></select>
+        </label>
+        <span></span>
+      </div>
+      <div class="row">
+        <label>Inicio <input id="rStart" type="time"></label>
+        <label>Fin <input id="rEnd" type="time"></label>
+      </div>
+      <div class="days" id="rDays" role="group" aria-label="Días de la semana"></div>
+      <button class="primary" type="submit">Agregar al horario</button>
+    </form>
+    <div class="list" id="rtList" style="margin-top:12px"></div>
+  </section>
+
+  <section class="card">
+    <h2>Datos</h2>
+    <div class="banner" id="storeBanner" hidden style="margin-bottom:12px"></div>
+    <div class="note" id="acct" hidden style="margin-bottom:10px"></div>
+    <div class="tools">
+      <button class="ghost" id="exportBtn" type="button">Exportar todo (CSV)</button>
+      <button class="ghost" id="logoutBtn" type="button" hidden>Cerrar sesión</button>
+    </div>
+    <details style="margin-top:14px">
+      <summary>Instalarla en tu celular</summary>
+      <ol>
+        <li><b>iPhone:</b> abre la página en Safari → botón Compartir → “Agregar a pantalla de inicio”.</li>
+        <li><b>Android:</b> ábrela en Chrome → menú ⋮ → “Agregar a pantalla principal”.</li>
+      </ol>
+      <p>Tus datos se guardan en tu cuenta de Crono-Dia, así que ves lo mismo en el celular y en la computadora.</p>
+    </details>
+  </section>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
