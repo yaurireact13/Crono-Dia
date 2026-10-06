@@ -52,3 +52,9 @@ También sirve GitHub Pages: **Settings > Pages > Deploy from a branch > `main` 
 
 Una página web no puede hacer sonar el celular si está cerrada. El aviso para planificar aparece dentro de la app
 cuando la tienes abierta. Para que suene siempre, programa también una alarma o un recordatorio a esa hora.
+
+## Íconos
+
+Los íconos son [Material Symbols](https://fonts.google.com/icons) de Google (licencia Apache 2.0), incluidos como SVG
+dentro de `index.html` (bloque `ICONS`), así que no hacen peticiones extra. Para agregar uno, copia su `<path>` como un
+`<symbol id="i-nombre" viewBox="0 -960 960 960">` y úsalo con `ic("nombre")` en `js/ui.js`.

@@ -20,34 +20,35 @@ function durText(a,b){
   return (h?h+" h":"")+(h&&r?" ":"")+(r?r+" min":"");
 }
 const EMO = [
-  [/meta|ads|anunci|campa|creativ|tiktok|publicid|pixel/i,"📣"],
-  [/pedido|despach|env[ií]o|empaque|courier|entrega|stock|inventario|almac/i,"📦"],
-  [/gym|entren|ejercicio|correr|pesas|cardio|deporte|f[uú]tbol|nadar/i,"🏋️"],
-  [/le(er|ctura)|libro|aprend|curso|estudi|clase/i,"📚"],
-  [/planific|agenda|organiz|cronograma/i,"🗓️"],
-  [/reuni|llamar|llamada|cliente|proveedor|negoci|socio/i,"🤝"],
-  [/n[uú]mero|cierre|finanz|cuenta|cobr|pago|gasto|ventas|caja|ganancia/i,"💰"],
-  [/comer|almuer|desayun|cena|cocin/i,"🍽️"],
-  [/dorm|descans|siesta/i,"😴"],
-  [/whatsapp|mensaje|responder|soporte|chat/i,"💬"],
-  [/dise[ñn]|video|foto|content|reel|grab|edit|canva/i,"🎬"],
-  [/product|landing|tienda|shopify|web|p[aá]gina|checkout/i,"🛍️"],
-  [/medit|respira|diario|reflex|journal|gratitud/i,"🧘"],
-  [/famil|mam[aá]|pap[aá]|amig|pareja|salir|novi/i,"🫶"],
-  [/limpi|ordenar|casa|lavar|ropa/i,"🧹"],
-  [/ia\b|chatgpt|claude|automat|program|c[oó]digo/i,"🤖"]
+  [/meta|ads|anunci|campa|creativ|tiktok|publicid|pixel/i,"campaign"],
+  [/pedido|despach|env[ií]o|empaque|courier|entrega|stock|inventario|almac/i,"inventory_2"],
+  [/gym|entren|ejercicio|correr|pesas|cardio|deporte|f[uú]tbol|nadar/i,"fitness_center"],
+  [/le(er|ctura)|libro|aprend|curso|estudi|clase/i,"menu_book"],
+  [/planific|agenda|organiz|cronograma/i,"edit_calendar"],
+  [/reuni|llamar|llamada|cliente|proveedor|negoci|socio/i,"handshake"],
+  [/n[uú]mero|cierre|finanz|cuenta|cobr|pago|gasto|ventas|caja|ganancia/i,"payments"],
+  [/comer|almuer|desayun|cena|cocin/i,"restaurant"],
+  [/dorm|descans|siesta/i,"bedtime"],
+  [/whatsapp|mensaje|responder|soporte|chat/i,"chat"],
+  [/dise[ñn]|video|foto|content|reel|grab|edit|canva/i,"movie"],
+  [/product|landing|tienda|shopify|web|p[aá]gina|checkout/i,"storefront"],
+  [/medit|respira|diario|reflex|journal|gratitud/i,"self_improvement"],
+  [/famil|mam[aá]|pap[aá]|amig|pareja|salir|novi/i,"favorite"],
+  [/limpi|ordenar|casa|lavar|ropa/i,"cleaning_services"],
+  [/ia\b|chatgpt|claude|automat|program|c[oó]digo/i,"smart_toy"]
 ];
-const EMOJI_START = /^(\p{Extended_Pictographic}(?:️|‍\p{Extended_Pictographic})*)\s*/u;
-function emojiFor(title, scope){ for(const [re,e] of EMO) if(re.test(title)) return e; return scope==="trabajo" ? "💼" : "🌿"; }
+const EMOJI_START = /^(\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*)\s*/u;
+function iconFor(title, scope){ for(const [re,n] of EMO) if(re.test(title)) return n; return scope==="trabajo" ? "work" : "spa"; }
 function splitTitle(t){
   const m = EMOJI_START.exec(t.title);
-  if(m) return {emoji:m[1], text:t.title.slice(m[0].length) || t.title};
-  return {emoji:emojiFor(t.title, t.scope), text:t.title};
+  if(m) return {emoji:esc(m[1]), text:t.title.slice(m[0].length) || t.title};
+  return {emoji:ic(iconFor(t.title, t.scope)), text:t.title};
 }
 let rafId = 0;
 function render(){ if(rafId) return; rafId = requestAnimationFrame(()=>{ rafId = 0; try { doRender(); } catch(e){ console.error(e); } }); }
 function setHTML(el, html){ if(el._h!==html){ el._h = html; el.innerHTML = html; } }
 function animate(el, cls){ el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+const ic = (n,c="") => `<svg class="ic${c?" "+c:""}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
 const SPR = id => `<svg class="illo" aria-hidden="true"><use href="#${id}"/></svg>`;
 
 /* ---------- toast (con acción opcional) ---------- */
@@ -71,8 +72,8 @@ function taskCard(t, o={}){
     miss ? '<span class="chip miss">No cumplida</span>' : "",
     state.scope==="todo" && !o.compact ? `<span class="chip ${t.scope}">${t.scope==="trabajo"?"Trabajo":"Personal"}</span>` : "",
     dur ? `<span class="chip">${dur}</span>` : "",
-    t.routineId ? '<span class="chip">🔁 fijo</span>' : "",
-    t.carried ? '<span class="chip">↪️ pasada</span>' : ""
+    t.routineId ? `<span class="chip">${ic("repeat")} fijo</span>` : "",
+    t.carried ? `<span class="chip">${ic("redo")} pasada</span>` : ""
   ].join("");
   return `<article class="task ${t.scope} ${t.done?"done":""} ${now?"now":""} ${state.just===t.id?"pop":""} ${o.compact?"compact":""}" data-id="${esc(t.id)}" tabindex="0" role="button" aria-label="Editar: ${esc(text)}">
     <div class="emo" aria-hidden="true">${emoji}</div>
@@ -82,7 +83,7 @@ function taskCard(t, o={}){
   </article>`;
 }
 
-const GROUPS = [["manana","☀️ Mañana"],["tarde","🌤️ Tarde"],["noche","🌙 Noche"],["sin","📌 Sin hora"]];
+const GROUPS = [["manana",ic("wb_sunny")+" Mañana"],["tarde",ic("wb_twilight")+" Tarde"],["noche",ic("bedtime")+" Noche"],["sin",ic("schedule")+" Sin hora"]];
 const partOf = s => s<"12:00" ? "manana" : s<"18:00" ? "tarde" : "noche";
 
 function emptyHTML(date){
@@ -90,7 +91,7 @@ function emptyHTML(date){
   return `<div class="empty">${SPR("illo-empty")}
     <h3>${past ? "No registraste nada este día" : "Tu día está vacío"}</h3>
     <p>${past ? "Los días sin plan se pasan solos." : "Un día sin plan lo decide otro. Agrega tu primera actividad: qué vas a hacer y a qué hora."}</p>
-    ${past ? "" : '<button class="btn-primary" type="button" data-open="new">＋ Agregar actividad</button>'}</div>`;
+    ${past ? "" : '<button class="btn-primary" type="button" data-open="new">${ic("add")} Agregar actividad</button>'}</div>`;
 }
 function agendaHTML(list, date){
   if(!state.tasksReady) return '<div class="task sk"></div><div class="task sk"></div><div class="task sk"></div>';
@@ -120,7 +121,7 @@ function doRender(){
   renderBanners();
   if(v==="hoy") renderHoy(); else if(v==="semana") renderSemana(); else if(v==="horario") renderHorario(); else renderAjustes();
   const st = streak();
-  setHTML($("sideStreak"), `<b>🔥 ${st}</b><span>${st===1?"día":"días"} de racha</span>`);
+  setHTML($("sideStreak"), `<b>${ic("local_fire_department")} ${st}</b><span>${st===1?"día":"días"} de racha</span>`);
 }
 
 function renderBanners(){
@@ -128,13 +129,13 @@ function renderBanners(){
   const yMiss = state.tasks.filter(t => t.date===yest && live(t) && !t.done);
   if(yMiss.length && !(state.days[yest]||{}).reviewed && state.tasksReady){
     const movable = yMiss.filter(t=>!t.routineId).length;
-    out.push(`<div class="notice bad"><span class="n-ico" aria-hidden="true">⚠️</span><div class="n-txt"><b>Ayer dejaste ${yMiss.length} sin cumplir</b><small>${yMiss.slice(0,3).map(t=>esc(splitTitle(t).text)).join(" · ")}${yMiss.length>3?" …":""}</small></div>
+    out.push(`<div class="notice bad"><span class="n-ico" aria-hidden="true">${ic("warning")}</span><div class="n-txt"><b>Ayer dejaste ${yMiss.length} sin cumplir</b><small>${yMiss.slice(0,3).map(t=>esc(splitTitle(t).text)).join(" · ")}${yMiss.length>3?" …":""}</small></div>
       <div class="acts">${movable?`<button class="btn-sm" data-b="carry">Pasar a hoy</button>`:""}<button class="btn-sm ghost" data-b="review">Entendido</button></div></div>`);
   }
   const target = planTarget();
   if(target && state.tasksReady && state.routinesReady && !dayTasks(target,"todo").filter(t=>!t.routineId).length){
     const when = target===t0 ? "hoy" : "mañana";
-    out.push(`<div class="notice warn"><span class="n-ico" aria-hidden="true">${state.cfg.planMode==="am"?"☀️":"🌙"}</span><div class="n-txt"><b>Hora de planificar ${when}</b><small>Aún no agregaste actividades para ${when}.</small></div>
+    out.push(`<div class="notice warn"><span class="n-ico" aria-hidden="true">${ic(state.cfg.planMode==="am"?"wb_sunny":"bedtime")}</span><div class="n-txt"><b>Hora de planificar ${when}</b><small>Aún no agregaste actividades para ${when}.</small></div>
       <div class="acts"><button class="btn-sm" data-b="plan" data-date="${target}">Planificar</button></div></div>`);
   }
   setHTML($("banners"), out.join(""));
@@ -142,11 +143,11 @@ function renderBanners(){
 
 function coachLine(date, tl){
   const t0 = today();
-  if(date < t0) return tl.total ? (tl.done===tl.total ? "Ese día lo cerraste completo. 🔥" : `Cerraste ${Math.round(tl.done/tl.total*100)}%. ¿Qué te frenó?`) : "Sin registro. Lo que no se mide no mejora.";
+  if(date < t0) return tl.total ? (tl.done===tl.total ? "Ese día lo cerraste completo." : `Cerraste ${Math.round(tl.done/tl.total*100)}%. ¿Qué te frenó?`) : "Sin registro. Lo que no se mide no mejora.";
   if(date > t0) return tl.total ? "Planificado. Llega ese día sin negociar." : "Aún sin plan. Hazlo hoy y mañana arrancas ligero.";
   if(!tl.total) return "Un día sin plan lo decide otro. Agrega tu primera actividad.";
   const p = tl.done/tl.total;
-  return p===0 ? "Arranca por lo más importante. Marca la primera." : p<.5 ? "Ya empezaste. No dejes enfriar el ritmo." : p<1 ? "Pasaste la mitad. Cierra lo que falta." : "Día cumplido. Descansa con la conciencia limpia. 🔥";
+  return p===0 ? "Arranca por lo más importante. Marca la primera." : p<.5 ? "Ya empezaste. No dejes enfriar el ritmo." : p<1 ? "Pasaste la mitad. Cierra lo que falta." : "Día cumplido. Descansa con la conciencia limpia.";
 }
 const RING_C = 2*Math.PI*42;
 let lastPct = null;
@@ -155,7 +156,7 @@ function renderHoy(){
   const date = state.date, t0 = today(), d = parse(date), h = new Date().getHours();
   const list = dayTasks(date, state.scope), tl = tally(list);
   const rel = date===t0 ? "Hoy" : date===addDays(t0,1) ? "Mañana" : date===addDays(t0,-1) ? "Ayer" : "";
-  $("greet").textContent = date===t0 ? (h<5?"🌙 Madrugada":h<12?"☀️ Buenos días":h<19?"🌤️ Buenas tardes":"🌙 Buenas noches") : date<t0 ? "📖 Así fue" : "🗓️ Por venir";
+  setHTML($("greet"), date===t0 ? (h<5?ic("dark_mode")+" Madrugada":h<12?ic("wb_sunny")+" Buenos días":h<19?ic("partly_cloudy_day")+" Buenas tardes":ic("bedtime")+" Buenas noches") : date<t0 ? ic("history")+" Así fue" : ic("event_upcoming")+" Por venir");
   $("heroDate").textContent = WD[d.getDay()]+" "+d.getDate();
   $("heroSub").textContent = MONTHS[d.getMonth()]+" "+d.getFullYear()+(rel?" · "+rel:"");
   $("coach").textContent = coachLine(date, tl);
@@ -189,12 +190,13 @@ function renderHoy(){
 function burst(){
   if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const box = $("confetti"); box.replaceChildren();
-  const E = ["🎉","✨","🔥","⭐","💪","🚀"];
-  for(let i=0;i<16;i++){
-    const s = document.createElement("span"); s.textContent = E[i%E.length];
-    s.style.setProperty("--x", (Math.random()*260-130).toFixed(0)+"px");
-    s.style.setProperty("--y", (-60-Math.random()*190).toFixed(0)+"px");
-    s.style.setProperty("--r", (Math.random()*60-30).toFixed(0)+"deg");
+  const C = ["var(--sun)","var(--work)","var(--pers)","var(--ok)"];
+  for(let i=0;i<22;i++){
+    const s = document.createElement("span");
+    s.style.background = C[i%C.length];
+    s.style.setProperty("--x", (Math.random()*300-150).toFixed(0)+"px");
+    s.style.setProperty("--y", (-60-Math.random()*200).toFixed(0)+"px");
+    s.style.setProperty("--r", (Math.random()*540-270).toFixed(0)+"deg");
     s.style.animationDelay = (Math.random()*.15).toFixed(2)+"s";
     box.append(s);
   }
@@ -214,11 +216,11 @@ function renderSemana(){
   const all = days.flatMap(x=>x.all);
   const row = (emo,label,list,cls) => { const x = tally(list), p = x.total ? Math.round(x.done/x.total*100) : 0;
     return `<div class="sum-i ${cls}"><div class="sum-h"><span>${emo} ${label}</span><b>${x.total?p+"%":"—"}</b></div><div class="track"><i style="width:${p}%"></i></div><small>${x.done} de ${x.total} cumplidas</small></div>`; };
-  setHTML($("wSum"), row("💼","Trabajo",all.filter(t=>t.scope==="trabajo"),"trabajo")+row("🌿","Vida personal",all.filter(t=>t.scope==="personal"),"personal"));
+  setHTML($("wSum"), row(ic("work"),"Trabajo",all.filter(t=>t.scope==="trabajo"),"trabajo")+row(ic("spa"),"Vida personal",all.filter(t=>t.scope==="personal"),"personal"));
   setHTML($("wDays"), days.map(({s,d,list})=>{
     const x = tally(list);
     return `<section class="wk-card ${s===t0?"today":""}"><button class="wk-head" data-date="${s}" aria-label="Abrir ${WD[d.getDay()]} ${d.getDate()}"><b>${WD[d.getDay()]} ${d.getDate()}${s===t0?" · hoy":""}</b><span>${x.total?x.done+"/"+x.total:"libre"} ›</span></button>
-      ${list.length ? `<div class="cards">${list.map(t=>taskCard(t,{compact:true})).join("")}</div>` : '<p class="free">Día libre. 🌴</p>'}</section>`;
+      ${list.length ? `<div class="cards">${list.map(t=>taskCard(t,{compact:true})).join("")}</div>` : '<p class="free">${ic("beach_access")} Día libre.</p>'}</section>`;
   }).join(""));
 }
 
@@ -234,8 +236,8 @@ function renderHorario(){
     return `<article class="rt ${r.scope}"><div class="emo" aria-hidden="true">${emoji}</div>
       <div class="t-main"><div class="t-title">${esc(text)}</div><div class="t-meta"><span class="t-time">${r.start?fmtTime(r.start)+(r.end?" → "+fmtTime(r.end):""):"Sin hora"}</span><span class="chip ${r.scope}">${r.scope==="trabajo"?"Trabajo":"Personal"}</span>${dayText(r.days||"")?`<span class="chip">${dayText(r.days)}</span>`:""}</div>
       <div class="pips" aria-hidden="true">${DAY_CHIPS.map(([v,l])=>`<i class="${(r.days||[]).includes(v)?"on":""}">${l}</i>`).join("")}</div></div>
-      <button class="x-btn" data-rdel="${esc(r.id)}" aria-label="Quitar del horario: ${esc(text)}">✕</button></article>`;
-  }).join("") : `<div class="empty">${SPR("illo-routine")}<h3>Aún no tienes horario fijo</h3><p>Lo que repites cada semana aparece solo en tu agenda. Empieza con una plantilla para e-commerce y edítala a tu medida.</p><button class="btn-primary" id="tplBtn" type="button">✨ Cargar plantilla sugerida</button></div>`);
+      <button class="x-btn" data-rdel="${esc(r.id)}" aria-label="Quitar del horario: ${esc(text)}">${ic("close")}</button></article>`;
+  }).join("") : `<div class="empty">${SPR("illo-routine")}<h3>Aún no tienes horario fijo</h3><p>Lo que repites cada semana aparece solo en tu agenda. Empieza con una plantilla para e-commerce y edítala a tu medida.</p><button class="btn-primary" id="tplBtn" type="button">${ic("bolt")} Cargar plantilla sugerida</button></div>`);
 }
 function renderAjustes(){
   if(document.activeElement!==$("cfgMode")) $("cfgMode").value = state.cfg.planMode;
@@ -248,7 +250,7 @@ function renderAjustes(){
 const sheet = $("sheet");
 let editing = null, afterSave = false;
 function setFScope(v){ state.fScope = v; $$("#fScopeSeg [data-v]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===v)); updateEmoPrev(); }
-function updateEmoPrev(){ const v = $("fTitle").value.trim(); $("emoPrev").textContent = splitTitle({title:v||" ", scope:state.fScope}).emoji; }
+function updateEmoPrev(){ const v = $("fTitle").value.trim(); const p = $("emoPrev"); p.innerHTML = splitTitle({title:v||" ", scope:state.fScope}).emoji; p.classList.toggle("personal", state.fScope==="personal"); }
 function openSheet(id, o={}){
   editing = id ? state.tasks.find(t=>t.id===id) || null : null;
   const e = editing;

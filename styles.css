@@ -8,7 +8,7 @@
   --line:#e3e7f3; --line-strong:#c9cfe6;
   --work:#2f55ff; --work-soft:#e6ebff; --work-ink:#2038c9; --on-work:#ffffff;
   --pers:#e8267c; --pers-soft:#ffe4ef; --pers-ink:#b3125e; --on-pers:#ffffff;
-  --sun:#ffc21a; --sun-ink:#2a2100;
+  --sun:#ffc21a; --sun-ink:#2a2100; --flame:#ff6a1a; --warn:#a85f00;
   --ok:#0fb77a; --ok-soft:#d9f8ec; --bad:#d92d43; --bad-soft:#ffe3e6; --warn-soft:#fff0c7;
   --hero:#171a47; --hero-ink:#f4f5ff; --hero-muted:#aab0e0; --hero-line:rgba(255,255,255,.14);
   --shadow-s:0 1px 2px rgba(18,20,43,.05),0 6px 18px -10px rgba(18,20,43,.22);
@@ -21,7 +21,7 @@
   --line:#262b52; --line-strong:#3a4175;
   --work:#7b93ff; --work-soft:#1d2557; --work-ink:#b4c1ff; --on-work:#0a1240;
   --pers:#ff6aa8; --pers-soft:#40183a; --pers-ink:#ff9ac4; --on-pers:#3a0620;
-  --sun:#ffd23f; --sun-ink:#2a2100;
+  --sun:#ffd23f; --sun-ink:#2a2100; --flame:#ff9150; --warn:#ffc766;
   --ok:#34d399; --ok-soft:#10372c; --bad:#ff7a88; --bad-soft:#40181e; --warn-soft:#3a2f10;
   --hero:#1b1f55; --hero-ink:#f4f5ff; --hero-muted:#aab0e0; --hero-line:rgba(255,255,255,.14);
   --shadow-s:0 1px 2px rgba(0,0,0,.4),0 6px 18px -10px rgba(0,0,0,.6);
@@ -31,7 +31,7 @@
   --line:#262b52; --line-strong:#3a4175;
   --work:#7b93ff; --work-soft:#1d2557; --work-ink:#b4c1ff; --on-work:#0a1240;
   --pers:#ff6aa8; --pers-soft:#40183a; --pers-ink:#ff9ac4; --on-pers:#3a0620;
-  --sun:#ffd23f; --sun-ink:#2a2100;
+  --sun:#ffd23f; --sun-ink:#2a2100; --flame:#ff9150; --warn:#ffc766;
   --ok:#34d399; --ok-soft:#10372c; --bad:#ff7a88; --bad-soft:#40181e; --warn-soft:#3a2f10;
   --hero:#1b1f55; --hero-ink:#f4f5ff; --hero-muted:#aab0e0; --hero-line:rgba(255,255,255,.14);
   --shadow-s:0 1px 2px rgba(0,0,0,.4),0 6px 18px -10px rgba(0,0,0,.6);
@@ -137,11 +137,14 @@ main{padding:16px 16px calc(var(--dock-h) + 28px + env(safe-area-inset-bottom,0p
 @media (min-width:860px){.ring{width:128px;height:128px}}
 @media (max-width:359px){.hero{grid-template-columns:1fr}.ring{margin-inline:auto}}
 .confetti{position:fixed;left:50%;top:36%;width:0;height:0;pointer-events:none;z-index:50}
-.confetti span{position:absolute;font-size:1.5rem;opacity:0;animation:fly 1.2s ease-out forwards}
+.confetti span{position:absolute;width:9px;height:15px;border-radius:3px;opacity:0;animation:fly 1.2s ease-out forwards}
 
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .stat{background:var(--surface);border-radius:20px;padding:12px;display:flex;flex-direction:column;gap:2px;box-shadow:var(--shadow-s);min-width:0}
-.stat span{font-size:1.15rem}
+.stat span{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;margin-bottom:6px}
+.stat.s-pend span{background:var(--work-soft);color:var(--work-ink)}
+.stat.s-week span{background:var(--ok-soft);color:var(--ok)}
+.stat.s-fire span{background:color-mix(in srgb,var(--flame) 18%,var(--surface));color:var(--flame)}
 .stat b{font-family:var(--f-display);font-size:1.35rem;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .stat small{font-size:.74rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 
@@ -168,8 +171,8 @@ main{padding:16px 16px calc(var(--dock-h) + 28px + env(safe-area-inset-bottom,0p
 .task:active{transform:scale(.985)}
 @media (hover:hover){.task:hover{transform:translateY(-1px)}}
 .task.now{box-shadow:0 0 0 2.5px var(--sun),var(--shadow-s)}
-.emo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:1.45rem;background:var(--work-soft);line-height:1}
-.task.personal .emo,.rt.personal .emo{background:var(--pers-soft)}
+.emo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:1.45rem;background:var(--work-soft);color:var(--work-ink);line-height:1}
+.task.personal .emo,.rt.personal .emo{background:var(--pers-soft);color:var(--pers-ink)}
 .t-title{font-weight:700;line-height:1.25;overflow-wrap:anywhere}
 .t-meta{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;margin-top:4px;font-size:.78rem;color:var(--muted)}
 .t-time{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
@@ -210,7 +213,9 @@ main{padding:16px 16px calc(var(--dock-h) + 28px + env(safe-area-inset-bottom,0p
 .notice{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--work-soft);border-radius:20px;padding:12px 14px;font-size:.9rem}
 .notice.bad{background:var(--bad-soft)}
 .notice.warn{background:var(--warn-soft)}
-.n-ico{font-size:1.5rem;line-height:1}
+.n-ico{line-height:1;display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--surface);color:var(--work-ink)}
+.notice.bad .n-ico{color:var(--bad)}
+.notice.warn .n-ico{color:var(--warn)}
 .n-txt{flex:1 1 12rem;min-width:0;display:flex;flex-direction:column}
 .n-txt small{color:var(--muted);font-size:.8rem;overflow-wrap:anywhere}
 .notice .acts{display:flex;gap:6px;flex-wrap:wrap}
@@ -337,3 +342,31 @@ main{padding:16px 16px calc(var(--dock-h) + 28px + env(safe-area-inset-bottom,0p
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
 }
+
+/* ---------- íconos (Material Symbols, Google · Apache-2.0) ---------- */
+.ic{width:1.25em;height:1.25em;fill:currentColor;flex:none;vertical-align:-.25em;display:inline-block}
+.seg button,.btn-sm,.btn-primary,.side-streak b,.sum-h span{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.close h2,.panel h2,.grp,.greet,#rForm summary,.how summary,.free{display:flex;align-items:center;gap:6px}
+.seg button .ic{width:1.15em;height:1.15em}
+.sum-h span{justify-content:flex-start}
+.close h2 .ic,.panel h2 .ic{width:22px;height:22px;color:var(--work)}
+.grp .ic{width:1.2em;height:1.2em;color:var(--flame)}
+.greet .ic{color:var(--sun);width:1.2em;height:1.2em}
+.nav-i i .ic{width:24px;height:24px}
+.add-btn .ic{width:30px;height:30px}
+@media (min-width:860px){.add-btn .ic{width:22px;height:22px}.nav-i i .ic{width:24px;height:24px}}
+.emo .ic{width:26px;height:26px}
+.task.compact .emo .ic{width:21px;height:21px}
+.chip .ic{width:.95em;height:.95em;vertical-align:-.15em}
+.stat .ic{width:22px;height:22px}
+.n-ico .ic{width:24px;height:24px}
+.icon-btn .ic,.x-btn .ic{width:19px;height:19px}
+.x-btn{display:grid;place-items:center}
+.side-streak b .ic{color:var(--flame);width:1.3em;height:1.3em}
+.auth-art li span .ic{width:22px;height:22px;color:var(--sun)}
+.emo-input .ic{width:26px;height:26px;color:var(--work-ink)}
+.emo-input #emoPrev.personal .ic{color:var(--pers-ink)}
+#emoPrev{display:grid;place-items:center;width:30px}
+.sum-i.trabajo .sum-h .ic{color:var(--work)}.sum-i.personal .sum-h .ic{color:var(--pers)}
+.free .ic{color:var(--muted)}
+.btn-sm .ic{width:1.1em;height:1.1em}
