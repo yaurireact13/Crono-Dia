@@ -91,7 +91,7 @@ function emptyHTML(date){
   return `<div class="empty">${SPR("illo-empty")}
     <h3>${past ? "No registraste nada este día" : "Tu día está vacío"}</h3>
     <p>${past ? "Los días sin plan se pasan solos." : "Un día sin plan lo decide otro. Agrega tu primera actividad: qué vas a hacer y a qué hora."}</p>
-    ${past ? "" : '<button class="btn-primary" type="button" data-open="new">${ic("add")} Agregar actividad</button>'}</div>`;
+    ${past ? "" : `<button class="btn-primary" type="button" data-open="new">${ic("add")} Agregar actividad</button>`}</div>`;
 }
 function agendaHTML(list, date){
   if(!state.tasksReady) return '<div class="task sk"></div><div class="task sk"></div><div class="task sk"></div>';
@@ -220,7 +220,7 @@ function renderSemana(){
   setHTML($("wDays"), days.map(({s,d,list})=>{
     const x = tally(list);
     return `<section class="wk-card ${s===t0?"today":""}"><button class="wk-head" data-date="${s}" aria-label="Abrir ${WD[d.getDay()]} ${d.getDate()}"><b>${WD[d.getDay()]} ${d.getDate()}${s===t0?" · hoy":""}</b><span>${x.total?x.done+"/"+x.total:"libre"} ›</span></button>
-      ${list.length ? `<div class="cards">${list.map(t=>taskCard(t,{compact:true})).join("")}</div>` : '<p class="free">${ic("beach_access")} Día libre.</p>'}</section>`;
+      ${list.length ? `<div class="cards">${list.map(t=>taskCard(t,{compact:true})).join("")}</div>` : `<p class="free">${ic("beach_access")} Día libre.</p>`}</section>`;
   }).join(""));
 }
 
