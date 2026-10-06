@@ -3,173 +3,284 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#2747d6">
 <title>Crono-Dia</title>
+<meta name="description" content="Planifica la noche, cumple el día. Agenda de trabajo y vida personal.">
+<meta name="theme-color" content="#f2f4fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0c1b" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Crono-Dia">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script>try{var t=localStorage.getItem("cronodia.theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Figtree:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="wrap" id="authView" hidden>
-  <header><h1>Crono-Dia</h1></header>
-  <section class="card" aria-label="Acceso">
-    <h2>Entra a tu cuenta</h2>
-    <form id="authForm">
-      <label>Correo <input id="aEmail" type="email" autocomplete="email" required></label>
-      <label>Contraseña (mínimo 6 caracteres) <input id="aPass" type="password" autocomplete="current-password" minlength="6" required></label>
-      <div class="banner" id="aMsg" hidden></div>
-      <div class="row">
-        <button class="primary" id="aLogin" type="submit">Entrar</button>
-        <button class="ghost" id="aSignup" type="button" style="padding:13px;font-size:1rem">Crear cuenta</button>
-      </div>
-    </form>
-    <p class="note" style="margin:12px 0 0">Tus actividades se guardan en tu cuenta y solo tú puedes verlas.</p>
-  </section>
-</div>
-<div class="wrap" id="appView">
-  <header>
-    <h1>Crono-Dia</h1>
-    <div class="seg sm" id="viewSeg" role="group" aria-label="Vista">
-      <button data-v="dia" aria-pressed="true">Día</button>
-      <button data-v="semana" aria-pressed="false">Semana</button>
-    </div>
-  </header>
 
-  <div class="banners" id="banners"></div>
+<!-- Ilustraciones reutilizables (SVG en línea: sin descargas extra) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="logo" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="11.5" fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-dasharray="54 19" transform="rotate(-70 16 16)"/>
+      <circle cx="16" cy="16" r="3.6" fill="var(--sun)"/>
+    </symbol>
+    <symbol id="illo-empty" viewBox="0 0 160 120">
+      <rect x="28" y="22" width="104" height="82" rx="16" fill="var(--surface-2)" stroke="var(--line)" stroke-width="2"/>
+      <rect x="28" y="22" width="104" height="24" rx="16" fill="var(--work)"/>
+      <rect x="28" y="36" width="104" height="10" fill="var(--work)"/>
+      <circle cx="52" cy="22" r="5" fill="var(--sun)"/><circle cx="108" cy="22" r="5" fill="var(--sun)"/>
+      <rect x="44" y="60" width="30" height="8" rx="4" fill="var(--pers)" opacity=".85"/>
+      <rect x="44" y="76" width="52" height="8" rx="4" fill="var(--line)"/>
+      <rect x="84" y="60" width="32" height="8" rx="4" fill="var(--line)"/>
+      <circle cx="122" cy="94" r="17" fill="var(--sun)"/>
+      <path d="M122 86v16M114 94h16" stroke="var(--sun-ink)" stroke-width="4" stroke-linecap="round"/>
+      <path d="M16 40l3 6 6 3-6 3-3 6-3-6-6-3 6-3z" fill="var(--pers)" opacity=".8" transform="scale(.7) translate(6 14)"/>
+    </symbol>
+    <symbol id="illo-routine" viewBox="0 0 160 120">
+      <circle cx="80" cy="60" r="44" fill="none" stroke="var(--line)" stroke-width="10"/>
+      <circle cx="80" cy="60" r="44" fill="none" stroke="var(--work)" stroke-width="10" stroke-linecap="round" stroke-dasharray="120 280" transform="rotate(-90 80 60)"/>
+      <circle cx="80" cy="60" r="44" fill="none" stroke="var(--pers)" stroke-width="10" stroke-linecap="round" stroke-dasharray="60 280" stroke-dashoffset="-140" transform="rotate(-90 80 60)"/>
+      <path d="M80 60V34M80 60l16 10" stroke="var(--ink)" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <circle cx="80" cy="60" r="6" fill="var(--sun)"/>
+    </symbol>
+  </defs>
+</svg>
 
-  <div class="seg scope" id="scopeSeg" role="group" aria-label="Ámbito">
-    <button data-v="todo" aria-pressed="true">Todo</button>
-    <button data-v="trabajo" aria-pressed="false">Trabajo</button>
-    <button data-v="personal" aria-pressed="false">Vida personal</button>
+<!-- ============ ACCESO ============ -->
+<div class="auth" id="authView" hidden>
+  <div class="auth-art" aria-hidden="true">
+    <svg class="dial" viewBox="0 0 200 200">
+      <g class="dial-spin">
+        <circle cx="100" cy="100" r="86" fill="none" stroke="var(--hero-line)" stroke-width="2" stroke-dasharray="2 9" stroke-linecap="round"/>
+      </g>
+      <circle cx="100" cy="100" r="70" fill="none" stroke="var(--hero-line)" stroke-width="14"/>
+      <circle cx="100" cy="100" r="70" fill="none" stroke="var(--work)" stroke-width="14" stroke-linecap="round" stroke-dasharray="190 440" transform="rotate(-90 100 100)"/>
+      <circle cx="100" cy="100" r="70" fill="none" stroke="var(--pers)" stroke-width="14" stroke-linecap="round" stroke-dasharray="120 440" stroke-dashoffset="-215" transform="rotate(-90 100 100)"/>
+      <circle cx="100" cy="100" r="46" fill="none" stroke="var(--sun)" stroke-width="10" stroke-linecap="round" stroke-dasharray="190 300" transform="rotate(-90 100 100)"/>
+      <path d="M82 102l13 13 25-30" fill="none" stroke="var(--hero-ink)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h2>Planea la noche.<br>Cumple el día.</h2>
+    <ul>
+      <li><span>💼</span>Trabajo y vida personal, cada uno con su color</li>
+      <li><span>🔁</span>Tu horario fijo se agenda solo</li>
+      <li><span>🔥</span>Mide tu cumplimiento y cuida tu racha</li>
+    </ul>
   </div>
+  <div class="auth-card">
+    <div class="brand"><svg class="logo" aria-hidden="true"><use href="#logo"/></svg><span>Crono-Dia</span></div>
+    <h1 id="aTitle">Qué bueno verte de vuelta</h1>
+    <div class="seg" id="aTabs" role="group" aria-label="Acceso">
+      <button type="button" data-m="login" aria-pressed="true">Entrar</button>
+      <button type="button" data-m="signup" aria-pressed="false">Crear cuenta</button>
+    </div>
+    <form id="authForm" novalidate>
+      <label>Correo <input id="aEmail" type="email" autocomplete="email" inputmode="email" placeholder="tu@correo.com" required></label>
+      <label>Contraseña <input id="aPass" type="password" autocomplete="current-password" minlength="6" placeholder="Mínimo 6 caracteres" required></label>
+      <div class="notice bad" id="aMsg" role="alert" hidden></div>
+      <button class="btn-primary block" id="aSubmit" type="submit">Entrar</button>
+    </form>
+    <p class="fine">Tus actividades se guardan en tu cuenta y solo tú puedes verlas.</p>
+  </div>
+</div>
 
-  <!-- ============ VISTA DÍA ============ -->
-  <div class="stack" id="dayView">
-    <section class="hero" aria-label="Resumen del día">
-      <div class="nav">
-        <button class="icon-btn" id="prevD" aria-label="Día anterior">‹</button>
-        <div class="lbl"><b id="dLbl"></b><small id="dSub"></small></div>
-        <button class="icon-btn" id="nextD" aria-label="Día siguiente">›</button>
-      </div>
-      <div class="strip" id="strip"></div>
-      <div>
-        <div class="prog-top">
-          <div><div class="prog-lbl">Cumplido</div><div class="prog-big" id="progBig">0<small>/0</small></div></div>
-          <button class="ghost" id="todayBtn" type="button">Ir a hoy</button>
+<!-- ============ APP ============ -->
+<div class="shell" id="appView" hidden>
+
+  <nav class="dock" aria-label="Principal">
+    <div class="brand"><svg class="logo" aria-hidden="true"><use href="#logo"/></svg><span>Crono-Dia</span></div>
+    <button class="add-btn" id="addBtn" type="button" aria-label="Nueva actividad"><span aria-hidden="true">＋</span><b>Nueva actividad</b></button>
+    <button class="nav-i" data-view="hoy" aria-current="page"><i aria-hidden="true">🏠</i><span>Hoy</span></button>
+    <button class="nav-i" data-view="semana"><i aria-hidden="true">🗓️</i><span>Semana</span></button>
+    <button class="nav-i" data-view="horario"><i aria-hidden="true">🔁</i><span>Horario</span></button>
+    <button class="nav-i" data-view="ajustes"><i aria-hidden="true">⚙️</i><span>Ajustes</span></button>
+    <div class="side-streak" id="sideStreak"></div>
+  </nav>
+
+  <main id="main">
+    <div class="notice" id="storeBanner" role="status" hidden></div>
+    <div class="banners" id="banners"></div>
+
+    <!-- HOY -->
+    <section class="view" id="v-hoy">
+     <div class="hoy-grid">
+      <div class="hoy-l">
+      <header class="hero">
+        <div class="hero-txt">
+          <p class="greet" id="greet"></p>
+          <h1 id="heroDate"></h1>
+          <p class="hero-sub" id="heroSub"></p>
+          <p class="coach" id="coach"></p>
         </div>
-        <div class="track" style="margin-top:8px"><div class="fill" id="progFill" style="width:0%"></div></div>
-      </div>
-      <div class="kpis">
-        <div class="kpi"><small>Pendientes</small><b id="kPend">0</b></div>
-        <div class="kpi"><small>Semana</small><b id="kWeek">—</b></div>
-        <div class="kpi"><small>Racha</small><b id="kStreak">0 días</b></div>
-      </div>
-    </section>
-
-    <section class="card" aria-label="Agenda del día">
-      <h2>Agenda</h2>
-      <div class="list" id="list"></div>
-    </section>
-
-    <section class="card" aria-label="Agregar actividad" id="addCard">
-      <h2>Agregar actividad</h2>
-      <form id="taskForm">
-        <div class="seg scope" id="fScopeSeg" role="group" aria-label="Tipo de actividad">
-          <button type="button" data-v="trabajo" aria-pressed="true">Trabajo</button>
-          <button type="button" data-v="personal" aria-pressed="false">Vida personal</button>
+        <div class="ring" role="img" aria-label="Progreso del día">
+          <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="r-bg" cx="50" cy="50" r="42"/><circle class="r-fg" id="ringFg" cx="50" cy="50" r="42" transform="rotate(-90 50 50)"/></svg>
+          <div class="ring-n"><b id="ringPct">0%</b><small id="ringSub">0 de 0</small></div>
         </div>
-        <label>¿Qué vas a hacer?
-          <input id="fTitle" class="big" type="text" maxlength="100" placeholder="Ej. Revisar anuncios de Meta" required autocomplete="off">
+        <div class="confetti" id="confetti" aria-hidden="true"></div>
+      </header>
+
+      <div class="stats">
+        <div class="stat"><span aria-hidden="true">⏳</span><b id="stPend">0</b><small>Pendientes</small></div>
+        <div class="stat"><span aria-hidden="true">📈</span><b id="stWeek">—</b><small>Semana</small></div>
+        <div class="stat"><span aria-hidden="true">🔥</span><b id="stStreak">0</b><small>Racha</small></div>
+      </div>
+
+      <section class="close" id="closeCard" aria-label="Cierre del día">
+        <h2>📝 Cierre del día</h2>
+        <label>¿Qué cumpliste, qué no, y por qué? Una o dos frases, sin excusas.
+          <textarea id="dayNote" maxlength="400" placeholder="Ej. No hice el gym porque me quedé revisando pedidos. Mañana lo pongo a las 7:00 antes de abrir el celular."></textarea>
         </label>
+        <p class="hint" id="noteHint"></p>
+      </section>
+      </div>
+      <div class="hoy-r">
+      <div class="daybar">
+        <button class="icon-btn" id="wkPrev" aria-label="Semana anterior">‹</button>
+        <div class="strip" id="strip"></div>
+        <button class="icon-btn" id="wkNext" aria-label="Semana siguiente">›</button>
+      </div>
+
+      <div class="bar-tools">
+        <div class="seg scope-seg" role="group" aria-label="Ámbito">
+          <button data-v="todo" aria-pressed="true">Todo</button>
+          <button data-v="trabajo" aria-pressed="false">💼 Trabajo</button>
+          <button data-v="personal" aria-pressed="false">🌿 Personal</button>
+        </div>
+        <button class="btn-sm ghost" id="todayBtn" type="button" hidden>Ir a hoy</button>
+      </div>
+
+      <div class="agenda" id="agenda" aria-live="polite"></div>
+
+      </div>
+     </div>
+    </section>
+
+    <!-- SEMANA -->
+    <section class="view" id="v-semana" hidden>
+      <header class="page-h">
+        <h1>Semana</h1>
+        <div class="wk-nav">
+          <button class="icon-btn" id="wPrev" aria-label="Semana anterior">‹</button>
+          <div><b id="wLbl"></b><small id="wSub"></small></div>
+          <button class="icon-btn" id="wNext" aria-label="Semana siguiente">›</button>
+        </div>
+      </header>
+      <div class="seg scope-seg" role="group" aria-label="Ámbito">
+        <button data-v="todo" aria-pressed="true">Todo</button>
+        <button data-v="trabajo" aria-pressed="false">💼 Trabajo</button>
+        <button data-v="personal" aria-pressed="false">🌿 Personal</button>
+      </div>
+      <div class="panel"><div class="bars" id="wBars"></div></div>
+      <div class="sums" id="wSum"></div>
+      <div class="wk-days" id="wDays"></div>
+    </section>
+
+    <!-- HORARIO -->
+    <section class="view" id="v-horario" hidden>
+      <header class="page-h"><h1>Horario fijo</h1><p class="lead">Lo que repites cada semana aparece solo en tu agenda.</p></header>
+      <details class="panel" id="rForm">
+        <summary>＋ Agregar al horario</summary>
+        <form id="rtForm">
+          <label>Actividad <input id="rTitle" type="text" maxlength="100" placeholder="Ej. Gym" autocomplete="off" required></label>
+          <div class="row">
+            <label>Tipo <select id="rScope"><option value="trabajo">💼 Trabajo</option><option value="personal">🌿 Vida personal</option></select></label>
+            <span></span>
+          </div>
+          <div class="row">
+            <label>Inicio <input id="rStart" type="time"></label>
+            <label>Fin <input id="rEnd" type="time"></label>
+          </div>
+          <div class="days" id="rDays" role="group" aria-label="Días de la semana"></div>
+          <button class="btn-primary block" type="submit">Agregar al horario</button>
+        </form>
+      </details>
+      <div class="rt-list" id="rtWeek"></div>
+    </section>
+
+    <!-- AJUSTES -->
+    <section class="view" id="v-ajustes" hidden>
+      <header class="page-h"><h1>Ajustes</h1></header>
+      <section class="panel">
+        <h2>🔔 Aviso para planificar</h2>
         <div class="row">
-          <label>Inicio <input id="fStart" type="time"></label>
-          <label>Fin <input id="fEnd" type="time"></label>
+          <label>¿Cuándo planificas?
+            <select id="cfgMode">
+              <option value="pm">La noche anterior</option>
+              <option value="am">Esa misma mañana</option>
+            </select>
+          </label>
+          <label>Hora del aviso <input id="cfgTime" type="time"></label>
         </div>
-        <label>Fecha <input id="fDate" type="date" required></label>
-        <button class="primary" id="saveBtn" type="submit">Guardar actividad</button>
-      </form>
-    </section>
-
-    <section class="card" aria-label="Cierre del día" id="closeCard">
-      <h2>Cierre del día</h2>
-      <label>¿Qué cumpliste, qué no, y por qué? Una o dos frases, sin excusas.
-        <textarea id="dayNote" maxlength="400" placeholder="Ej. No hice el gym porque me quedé revisando pedidos. Mañana lo pongo a las 7:00 antes de abrir el celular."></textarea>
-      </label>
-      <div class="note" id="noteHint" style="margin-top:6px"></div>
-    </section>
-  </div>
-
-  <!-- ============ VISTA SEMANA ============ -->
-  <div class="stack" id="weekView" hidden>
-    <section class="hero" aria-label="Resumen de la semana">
-      <div class="nav">
-        <button class="icon-btn" id="prevW" aria-label="Semana anterior">‹</button>
-        <div class="lbl"><b id="wLbl"></b><small id="wSub"></small></div>
-        <button class="icon-btn" id="nextW" aria-label="Semana siguiente">›</button>
-      </div>
-      <div class="sum" id="wSum"></div>
-    </section>
-    <div class="stack" id="wDays"></div>
-  </div>
-
-  <!-- ============ AJUSTES ============ -->
-  <section class="card" aria-label="Ajustes">
-    <h2>Aviso para planificar</h2>
-    <div class="row">
-      <label>¿Cuándo planificas?
-        <select id="cfgMode">
-          <option value="pm">La noche anterior (para mañana)</option>
-          <option value="am">Esa misma mañana</option>
-        </select>
-      </label>
-      <label>Hora del aviso <input id="cfgTime" type="time"></label>
-    </div>
-    <p class="note" style="margin:10px 0 0">Mientras tengas esta página abierta, te avisa arriba cuando llega la hora y no has planificado. Para que el celular suene aunque la página esté cerrada, pon también una alarma a esa hora.</p>
-  </section>
-
-  <section class="card" aria-label="Horario fijo">
-    <h2>Horario fijo</h2>
-    <p class="note" style="margin:0 0 12px">Actividades que se repiten cada semana. Aparecen solas en tu agenda los días que elijas.</p>
-    <form id="rtForm">
-      <label>Actividad <input id="rTitle" type="text" maxlength="100" placeholder="Ej. Gym" autocomplete="off" required></label>
-      <div class="row">
-        <label>Tipo
-          <select id="rScope"><option value="trabajo">Trabajo</option><option value="personal">Vida personal</option></select>
+        <p class="hint">Con la app abierta, te avisa arriba cuando llega la hora y aún no planificaste. Para que el celular suene con la app cerrada, pon también una alarma a esa hora.</p>
+      </section>
+      <section class="panel">
+        <h2>🎨 Apariencia</h2>
+        <label>Tema
+          <select id="themeSel"><option value="auto">Automático (como tu celular)</option><option value="light">Claro</option><option value="dark">Oscuro</option></select>
         </label>
-        <span></span>
-      </div>
-      <div class="row">
-        <label>Inicio <input id="rStart" type="time"></label>
-        <label>Fin <input id="rEnd" type="time"></label>
-      </div>
-      <div class="days" id="rDays" role="group" aria-label="Días de la semana"></div>
-      <button class="primary" type="submit">Agregar al horario</button>
-    </form>
-    <div class="list" id="rtList" style="margin-top:12px"></div>
-  </section>
-
-  <section class="card">
-    <h2>Datos</h2>
-    <div class="banner" id="storeBanner" hidden style="margin-bottom:12px"></div>
-    <div class="note" id="acct" hidden style="margin-bottom:10px"></div>
-    <div class="tools">
-      <button class="ghost" id="exportBtn" type="button">Exportar todo (CSV)</button>
-      <button class="ghost" id="logoutBtn" type="button" hidden>Cerrar sesión</button>
-    </div>
-    <details style="margin-top:14px">
-      <summary>Instalarla en tu celular</summary>
-      <ol>
-        <li><b>iPhone:</b> abre la página en Safari → botón Compartir → “Agregar a pantalla de inicio”.</li>
-        <li><b>Android:</b> ábrela en Chrome → menú ⋮ → “Agregar a pantalla principal”.</li>
-      </ol>
-      <p>Tus datos se guardan en tu cuenta de Crono-Dia, así que ves lo mismo en el celular y en la computadora.</p>
-    </details>
-  </section>
+      </section>
+      <section class="panel">
+        <h2>👤 Cuenta y datos</h2>
+        <p class="hint" id="acct" hidden></p>
+        <div class="tools">
+          <button class="btn-sm ghost" id="exportBtn" type="button">⬇️ Exportar todo (CSV)</button>
+          <button class="btn-sm ghost" id="logoutBtn" type="button" hidden>Cerrar sesión</button>
+        </div>
+        <details class="how">
+          <summary>📲 Instalarla en tu celular</summary>
+          <ol>
+            <li><b>iPhone:</b> abre la página en Safari → Compartir → “Agregar a pantalla de inicio”.</li>
+            <li><b>Android:</b> ábrela en Chrome → menú ⋮ → “Instalar app” o “Agregar a pantalla principal”.</li>
+          </ol>
+        </details>
+      </section>
+    </section>
+  </main>
 </div>
-<div class="toast" id="toast" hidden></div>
+
+<!-- ============ HOJA: NUEVA / EDITAR ACTIVIDAD ============ -->
+<dialog class="sheet" id="sheet" aria-labelledby="sheetTitle">
+  <form class="sheet-in" id="taskForm" novalidate>
+    <div class="grip" aria-hidden="true"></div>
+    <header><h2 id="sheetTitle">Nueva actividad</h2><button class="icon-btn" type="button" id="sheetX" aria-label="Cerrar">✕</button></header>
+    <div class="seg scope-pick" id="fScopeSeg" role="group" aria-label="Tipo de actividad">
+      <button type="button" data-v="trabajo" aria-pressed="true">💼 Trabajo</button>
+      <button type="button" data-v="personal" aria-pressed="false">🌿 Vida personal</button>
+    </div>
+    <label>¿Qué vas a hacer?
+      <span class="emo-input"><span id="emoPrev" aria-hidden="true">💼</span><input id="fTitle" type="text" maxlength="100" placeholder="Ej. Revisar anuncios de Meta" autocomplete="off" enterkeyhint="done"></span>
+    </label>
+    <div class="row">
+      <label>Inicio <input id="fStart" type="time"></label>
+      <label>Fin <input id="fEnd" type="time"></label>
+    </div>
+    <label>Fecha
+      <span class="date-row">
+        <input id="fDate" type="date" required>
+        <button class="btn-sm ghost" type="button" id="qToday">Hoy</button>
+        <button class="btn-sm ghost" type="button" id="qTomorrow">Mañana</button>
+      </span>
+    </label>
+    <div class="sheet-acts">
+      <button class="btn-primary" id="saveBtn" type="submit">Guardar</button>
+      <button class="btn-sm ghost" id="againBtn" type="submit">Guardar y agregar otra</button>
+    </div>
+    <div class="sheet-acts" id="editActs" hidden>
+      <button class="btn-sm ghost" id="pushBtn" type="button">➡️ Pasar a mañana</button>
+      <button class="btn-sm danger" id="delBtn" type="button">🗑️ Eliminar</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
-<script src="js/app.js"></script>
+<script src="js/core.js"></script>
+<script src="js/ui.js"></script>
 </body>
 </html>

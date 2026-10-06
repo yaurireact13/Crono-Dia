@@ -40,10 +40,13 @@ También sirve GitHub Pages: **Settings > Pages > Deploy from a branch > `main` 
 
 | Archivo | Para qué sirve |
 |---|---|
-| `index.html`, `styles.css` | Pantallas y estilos (tema claro y oscuro automático) |
-| `js/app.js` | Lógica, acceso con correo y capa de datos (Supabase o modo local) |
+| `index.html`, `styles.css` | Pantallas y estilos (móvil con barra inferior, escritorio con barra lateral; tema claro, oscuro o automático) |
+| `js/core.js` | Estado, acceso a datos (Supabase o modo local) y horario fijo |
+| `js/ui.js` | Pantallas, hoja de edición, gestos y animaciones |
 | `config.js` | URL y clave pública de tu proyecto de Supabase |
 | `supabase/schema.sql` | Tablas `tasks`, `routines`, `days`, `settings` con RLS |
+| `manifest.webmanifest`, `icons/` | Instalación como app en el celular |
+| `netlify.toml` | Configuración de publicación en Netlify |
 
 ## Sobre los avisos
 
